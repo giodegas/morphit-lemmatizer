@@ -1,4 +1,7 @@
 #coding: utf-8
+
+# by G. De Gasperis and I. Grappasonno, UnivAQ http://www.univaq.it
+
 import re
 import codecs
 import json
