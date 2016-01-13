@@ -31,6 +31,17 @@ def addCatTree(catK, catV):
     catTree[catK]= catTree[catK].union(catTree[catK], set(catV))
     pass
 
+def makeTupleList(lx):
+    out = []
+    for e in lx:
+        if type(e)==type((0,0)):
+            out.append(e)
+        elif type(e)==type([]):
+            out += makeTupleList(e)
+        else:
+            print '?????'
+    return out
+
 def tokenize(line):
     scanner=re.Scanner([
       (ur"[0-9]+",  lambda scanner,token:("DET-NUM", token)),
@@ -39,7 +50,8 @@ def tokenize(line):
       (ur"[,;:]+",  lambda scanner,token:("PUNT", token)),
       (ur"\s+", None), # None == skip token.
     ])
-    return scanner.scan(line)
+    out0 = scanner.scan(line)
+    return makeTupleList(out0)
 
 def RomanTranslate(s):
     string = s.upper()
@@ -123,6 +135,7 @@ def getLemma(lemmaPrec, lessema, succ):
 
 def lemmatize(lemmaPrec, lessema, succ):
     out = u''
+    print lessema
     print log(lessema), '...',
     if len(lessema)>0:
         if hasLemma(lessema):
@@ -191,17 +204,14 @@ with codecs.open('collodi_pinocchio_utf8.txt','r','utf-8') as fc:
     lemmabile = lemmaPrec
     succ = u''
     for line in fc:
-        wlst = r.split(line.strip())
         tl = tokenize(line.strip())
         widx = 0
-        for w in wlst:
-            succ = '[]'
-            if widx < len(wlst) - 1:
-                succ = wlst[widx + 1]
-            if len(lemmabile)>0:
-                lemmaPrec = lemmabile
-            lemmabile = lemmatize(lemmaPrec, w, succ)
-            widx += 1
-
-
-
+        for t in tl:
+            if t[0]=='LESSEMA':
+                succ = '[]'
+                if widx < len(tl) - 1:
+                    succ = tl[widx + 1]
+                if len(lemmabile)>0:
+                    lemmaPrec = lemmabile
+                lemmabile = lemmatize(lemmaPrec, t[1], succ)
+                widx += 1
